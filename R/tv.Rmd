@@ -1,0 +1,110 @@
+---
+title: "Effect of television watching habits on early childhood education outcomes"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+set.seed(0)
+setwd("~/ecls/")
+d <- read.csv(file="data-processed/tv.csv", header=TRUE, sep=",")
+```
+
+
+
+```{r}
+head(d,5)
+```
+
+```{r}
+s <- lm(c5r2mtsc ~ I(p5tvbf8h+p5tvw83h+p5tvw3dh+p5tvafdh+p5tvsath+p5tvsunh)+w3income, data=d)
+summary(s)
+```
+
+```{r}
+a <- lm(c5r2mtsc ~ p5tvbf8h+p5tvw83h+p5tvw3dh+p5tvafdh+p5tvsath+p5tvsunh+w3income, data=d)
+summary(a)
+plot(a)
+```
+```{r}
+r <- lm(c5r2mtsc ~ p5tvbf8h+w3income, data=d)
+summary(r)
+```
+
+```{r}
+r <- lm(c5r2mtsc ~ p5tvw83h+w3income, data=d)
+summary(r)
+```
+
+```{r}
+r <- lm(c5r2mtsc ~ p5tvw3dh+w3income, data=d)
+summary(r)
+```
+
+```{r}
+r <- lm(c5r2mtsc ~ p5tvafdh+w3income, data=d)
+summary(r)
+```
+
+```{r}
+r <- lm(c5r2mtsc ~ p5tvsath+w3income, data=d)
+summary(r)
+```
+
+```{r}
+r <- lm(c5r2mtsc ~ p5tvsunh+w3income, data=d)
+summary(r)
+```
+
+
+```{r}
+h <- lm(c5r2mtsc ~ w3income+p5tvw3dh, data=d)
+```
+
+```{r}
+g <- lm(c5r2mtsc ~ w3income, data=d)
+(hg <- anova(h, g))
+```
+
+```{r}
+b <- lm(c5r2rtsc ~ p5tvbf8h+p5tvw83h+p5tvw3dh+p5tvafdh+p5tvsath+p5tvsunh+w3income, data=d)
+e <- lm(c5r2rtsc ~ w3income, data=d)
+be <- anova(b, e)
+summary(b)
+plot(b)
+```
+
+```{r}
+j <- lm(c5r2rtsc ~ w3income+p5tvw3dh, data=d)
+```
+
+```{r}
+g <- lm(c5r2mtsc ~ w3income, data=d)
+(jg <- anova(j, g))
+```
+
+
+
+
+
+
+
+```{r}
+c <- lm(c5stscor ~ p5tvbf8h+p5tvw83h+p5tvw3dh+p5tvafdh+p5tvsath+p5tvsunh+w3income, data=d)
+f <- lm(c5stscor ~ w3income, data=d)
+summary(c)
+plot(c)
+```
+
+```{r}
+k <- lm(c5stscor ~ w3income+p5tvw3dh, data=d)
+```
+
+```{r}
+m <- lm(c5stscor ~ w3income, data=d)
+(km <- anova(k, m))
+```

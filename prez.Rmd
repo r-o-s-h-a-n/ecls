@@ -1,0 +1,251 @@
+---
+title: "Factors that affect early childhood education"
+author: "Win Suvansinpan, Geoffrey Li, Roshan Ramkeesoon"
+date: "Wednesday, March 13, 2019"
+output: beamer_presentation
+fontsize: 9pt
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+setwd('~/ecls/')
+set.seed(0)
+library(tidyverse)
+library(haven)
+library(sjmisc)
+library(ggplot2)
+library(dplyr)
+
+
+qqn <- function (x, ...) {
+  qqnorm(x, ...)
+  qqline(x)
+}
+```
+
+
+
+# Outline
+
+- Dataset
+
+- Experiment 1. TV watching
+
+- Experiment 2. Bedtime
+
+- Experiment 3. Age
+
+# Dataset
+
+- Early Childhoold Longitudinal Study
+
+- Sampling and data collection methdology
+
+- Availability
+
+- Common response variable
+
+# Early Childhoold Longitudinal Study
+- conducted by the Institute for Education Sciences, part of U.S. federal government \footnote{U.S. Dept of Education, National Center for Education Statistics. EARLY CHILDHOOD LONGITUDINAL STUDY [UNITED STATES]: KINDERGARTEN CLASS OF 1998-1999, THIRD GRADE [Computer file]. ICPSR version. Washington, DC: U.S. Dept of Education, Institute of Education Sciences [producer], 2004. Ann Arbor, MI: Inter-university Consortium for Political and Social Research [distributor], 2004.}
+- collected data on factors that affect educational outcomes by interviewing students, their teachers, and their parents/guardians
+- tracking 3,341 variables ranging from student bedtime to the teacher’s level of interest in teaching, the study is one of the largest datasets of its kind
+- We only use the 2002 dataset, which pertains to 15,000 students in spring 3rd grade from the Kindergarten class of 1998-1999
+
+# Sampling and data collection methdology
+- 15,000 students nationwide
+- multi-stage stratified cluster sampling
+    - schools were randomly selected across U.S.A.
+    - average of 23 kingergartners randomly selected from each selected school
+- sample is diverse (socioeconomic status, race, private/public schools, etc)
+- parents and teachers were interviewed over phone, students were interviewed in-person
+- all interviews conducted by trained staff
+
+# Availability
+- ECLS dataset is available for download on the ECLS website  
+- High level (>90%) of completness for most fields
+
+
+# Common response variables
+
+- math, reading, and science exams adminstered during student surveys
+- "math t-score": raw scores in each subject were also provided as normalized to $N(\mu=50, sd=10)$
+- normalization is useful so we can make comparisons in response across the three different subjects
+- will examine average changes in child's normalized score associated with predictors
+
+
+
+
+
+
+# Experiment 1. TV watching
+
+- Background 
+
+- Hypothesis
+
+- Variables
+
+- Method
+
+- Results
+
+
+
+# Background
+
+- While television is a decades old technology, the interaction between time spent consuming media and child education outcomes is still of interest
+- prior studies have shown that there is a statistically significant negative effect of early childhood television watching on educational outcomes at high school level
+- prior studies indicate that time spent after classes on student activities and homework have significant positive influence on grades
+- interested in matching prior study's association between total television watching with grades in our data
+- interested in association of afterschool television watching on grades
+
+
+# Hypotheses
+
+- $H_{A0}$: there is no association between hours of television watching \textbf{total per week} on normalized student grades in any subject
+- $H_{B0}$: there is no association between hours of television watching \textbf{after school} on normalized student grades in any subject
+
+# Variables
+
+- Control for parent income a numeric proxy of socioeconomic status which we think may have an effect on parent and child behavior
+
+- Predictors are hours of tv watched in each period: 
+    - weekdays before 8am
+    - weekdays between 8am and 3pm
+    - weekdays between 3pm and dinner
+    - weekdays between dinner and bedtime
+    - saturdays
+    - sundays
+
+
+# Method
+- To test $H_{A0}$: Use linear regression to test for significance of hours of tv watched \textbf{total per week} on each subject score while controling for parent income
+- To test $H_{B0}$: Use linear regression to test for significance of hours of tv watched \textbf{after school} on each subject score while controling for parent income
+
+
+```{r, echo=F}
+tv <- read.csv(file="data-processed/tv.csv", header=TRUE, sep=",")
+```
+
+
+
+
+# Television watched weekly
+\small
+```{r, echo=F, comment = ""}
+tv.lr.math_sum <- lm(c5r2mtsc ~ I(p5tvbf8h+p5tvw83h+p5tvw3dh+p5tvafdh+p5tvsath+p5tvsunh)+w3income, data=tv)
+tv.lr.read_sum <- lm(c5r2rtsc ~ I(p5tvbf8h+p5tvw83h+p5tvw3dh+p5tvafdh+p5tvsath+p5tvsunh)+w3income, data=tv)
+tv.lr.scie_sum <- lm(c5stscor ~ I(p5tvbf8h+p5tvw83h+p5tvw3dh+p5tvafdh+p5tvsath+p5tvsunh)+w3income, data=tv)
+
+
+tv_watched <- summary(tv.lr.math_sum)$coef[2,]
+income <- summary(tv.lr.math_sum)$coef[3,]
+print('MATH')
+tv.lr.math.table <- rbind(tv_watched, income)
+tv.lr.math.table
+
+
+tv_watched <- summary(tv.lr.read_sum)$coef[2,]
+income <- summary(tv.lr.read_sum)$coef[3,]
+print('READING')
+tv.lr.read.table <- rbind(tv_watched, income)
+tv.lr.read.table
+
+
+tv_watched <- summary(tv.lr.scie_sum)$coef[2,]
+income <- summary(tv.lr.scie_sum)$coef[3,]
+print('SCIENCE')
+tv.lr.scie.table <- rbind(tv_watched, income)
+tv.lr.scie.table
+
+```
+- All tv watching coefficients statistically significant, have negative association with test scores
+- Income coefficient is statistically significant, positive association with grades
+- Each additional hour of tv watched per week is associated with an average 0.05 to 0.07 drop in mean test scores for a given income
+- We have reproduced the result that we reject the null hypothesis that there is no association between hours of television watched and grades
+
+# Assess model assumptions
+\small
+```{r, echo = F}
+par(mfrow=c(2,2))
+plot(tv.lr.math_sum)
+```
+
+# Assess model assumptions
+- slight deviance from normality in the residuals vs fitted plot
+- qqplot shows normality of residuals
+- scale-location plot shows constant variance of residuals across fitted values
+- striation patterns in the residuals versus fitted plot might be explained by large jumps in data for parent's income
+- similar results for comparisons with the other two tests (see report)
+- seems like assumptions hold sufficiently for parameters of interest to be meaningful
+
+
+
+
+# Television watched after school
+\small
+```{r, echo=F, comment = ""}
+tv.lr.math_3 <- lm(c5r2mtsc ~ p5tvw3dh+w3income, data=tv)
+tv.lr.read_3 <- lm(c5r2rtsc ~ p5tvw3dh+w3income, data=tv)
+tv.lr.scie_3 <- lm(c5stscor ~ p5tvw3dh+w3income, data=tv)
+
+math <- summary(tv.lr.math_3)$coef[2,]
+reading <- summary(tv.lr.read_3)$coef[2,]
+science <- summary(tv.lr.scie_3)$coef[2,]
+
+tv_watched <- summary(tv.lr.math_3)$coef[2,]
+income <- summary(tv.lr.math_3)$coef[3,]
+print('MATH')
+tv.lr.math.table <- rbind(tv_watched, income)
+tv.lr.math.table
+
+
+tv_watched <- summary(tv.lr.read_3)$coef[2,]
+income <- summary(tv.lr.read_3)$coef[3,]
+print('READING')
+tv.lr.read.table <- rbind(tv_watched, income)
+tv.lr.read.table
+
+
+tv_watched <- summary(tv.lr.scie_3)$coef[2,]
+income <- summary(tv.lr.scie_3)$coef[3,]
+print('SCIENCE')
+tv.lr.scie.table <- rbind(tv_watched, income)
+tv.lr.scie.table
+```
+- All the coefficients are statistically significant and negative
+- Income is significantly significant and positive association with grades
+- Each additional hour of tv watched after school is associated with an average 0.23 to 0.37 drop in mean test scores for a given income
+- We reject the null hypothesis that after school television watching does not have an association with grades
+
+
+# Assess model assumptions - math scores
+\small
+```{r, echo = F}
+par(mfrow=c(2,2))
+plot(tv.lr.math_3)
+```
+
+# Assess model assumptions
+- slight deviance from normality in the residuals vs fitted plot
+- qqplot shows normality of residuals
+- scale-location plot shows constant variance of residuals across fitted values
+- striation patterns in the residuals versus fitted plot might be explained by large jumps in data for parent's income
+- similar results to reading and science (see report)
+- seems like assumptions hold sufficiently for parameters of interest to be meaningful
+
+
+
+# Compare coefficients from both experiments
+- Coefficients found from the two linear regression models mentioned on prevous slides:
+```{r, echo=F, comment = ""}
+
+x <- data.frame("Subject"=c("Math", "Reading", "Science"), 
+                        "Weekly Hours"=c(-5.36e-02, -6.60e-02, -5.81e-02), 
+                        "AfterSchool Hours"=c(-.23, -0.38, -.28))
+x
+```
+- The coefficients are higher than for total television watching indicating the isolated effect of each “after school” tv watching hour associated with worse outcomes than each hour weekly tv watching
+
+
+
+
